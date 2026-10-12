@@ -2,6 +2,7 @@ package completion
 
 import (
 	"unicode"
+	"unicode/utf8"
 
 	"github.com/reeflective/readline/inputrc"
 	"github.com/reeflective/readline/internal/core"
@@ -118,8 +119,8 @@ func (e *Engine) InsertCommonPrefix() {
 
 	// Replace the typed prefix with the longer shared one, mirroring how
 	// acceptCandidate swaps the prefix for a full candidate value.
-	e.cursor.Move(-1 * len(e.prefix))
-	e.line.Cut(e.cursor.Pos(), e.cursor.Pos()+len(e.prefix))
+	e.cursor.Move(-1 * utf8.RuneCountInString(e.prefix))
+	e.line.Cut(e.cursor.Pos(), e.cursor.Pos()+utf8.RuneCountInString(e.prefix))
 	e.cursor.InsertAt([]rune(common)...)
 
 	// Keep the engine prefix in sync so the menu highlighting and any
@@ -187,8 +188,8 @@ func (e *Engine) acceptCandidate() {
 	e.inserted = []rune(completion)
 
 	// Remove the line prefix and insert the candidate.
-	e.cursor.Move(-1 * len(e.prefix))
-	e.line.Cut(e.cursor.Pos(), e.cursor.Pos()+len(e.prefix))
+	e.cursor.Move(-1 * utf8.RuneCountInString(e.prefix))
+	e.line.Cut(e.cursor.Pos(), e.cursor.Pos()+utf8.RuneCountInString(e.prefix))
 	e.cursor.InsertAt(e.inserted...)
 
 	// And forget about this inserted completion.
@@ -206,7 +207,7 @@ func (e *Engine) insertCandidate() {
 
 	e.selected = grp.selected()
 
-	if len(e.selected.Value) < len(e.prefix) {
+	if utf8.RuneCountInString(e.selected.Value) < utf8.RuneCountInString(e.prefix) {
 		return
 	}
 
@@ -223,8 +224,8 @@ func (e *Engine) insertCandidate() {
 	e.compCursor.Set(e.cursor.Pos())
 
 	// Remove the line prefix and insert the candidate.
-	e.compCursor.Move(-1 * len(e.prefix))
-	e.compLine.Cut(e.compCursor.Pos(), e.compCursor.Pos()+len(e.prefix))
+	e.compCursor.Move(-1 * utf8.RuneCountInString(e.prefix))
+	e.compLine.Cut(e.compCursor.Pos(), e.compCursor.Pos()+utf8.RuneCountInString(e.prefix))
 	e.compCursor.InsertAt(e.inserted...)
 }
 
@@ -249,7 +250,7 @@ func (e *Engine) prepareSuffix() (comp string) {
 	// matcher for later: whatever the decision we take here will be identical
 	// to the one we take while removing suffix in "non-virtual comp" mode.
 	e.sm = cur.noSpace
-	e.sm.pos = e.cursor.Pos() + len(comp) - prefix - 1
+	e.sm.pos = e.cursor.Pos() + utf8.RuneCountInString(comp) - utf8.RuneCountInString(e.prefix) - 1
 
 	return comp
 }
