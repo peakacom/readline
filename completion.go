@@ -21,6 +21,7 @@ func (rl *Shell) completionCommands() commands {
 		"menu-complete-next-tag":   rl.menuCompleteNextTag,
 		"menu-complete-prev-tag":   rl.menuCompletePrevTag,
 		"accept-and-menu-complete": rl.acceptAndMenuComplete,
+		"menu-complete-accept":     rl.menuCompleteAccept,
 		"vi-registers-complete":    rl.viRegistersComplete,
 		"menu-incremental-search":  rl.menuIncrementalSearch,
 	}
@@ -155,6 +156,20 @@ func (rl *Shell) menuCompletePrevTag() {
 
 // In a menu completion, insert the current completion
 // into the buffer, and advance to the next possible completion.
+// Accept the currently selected completion candidate and leave the menu,
+// without accepting the input line (zsh's accept-line inside menu selection).
+// Bound to nothing by default; a shell whose lines are multi-line, or whose
+// Enter runs the line, binds it to Return in the menu-select keymap.
+func (rl *Shell) menuCompleteAccept() {
+	rl.History.SkipSave()
+
+	if !rl.completer.IsActive() {
+		return
+	}
+
+	rl.completer.Reset()
+}
+
 func (rl *Shell) acceptAndMenuComplete() {
 	rl.History.SkipSave()
 
