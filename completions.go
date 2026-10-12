@@ -22,6 +22,7 @@ type Completions struct {
 	usage    string
 	listLong map[string]bool
 	noSort   map[string]bool
+	noFilter bool
 	listSep  map[string]string
 	pad      map[string]bool
 	escapes  map[string]bool
@@ -297,6 +298,16 @@ func (c Completions) ListSeparator(seps ...string) Completions {
 	return c
 }
 
+// NoFilter keeps every candidate the completer returned, instead of keeping only
+// those that start with the prefix: for a completer that already filtered, and
+// whose candidates may not spell the typed text literally (a quoted SQL
+// identifier completing an unquoted one, say). The prefix is still what gets
+// replaced on the line.
+func (c Completions) NoFilter() Completions {
+	c.noFilter = true
+	return c
+}
+
 // NoSort forces the completions not to sort the completions in alphabetical order.
 // A series of tags can be passed to restrict this to these tags. If empty, will be
 // applied to all completions.
@@ -454,6 +465,7 @@ func (c *Completions) convert() completion.Values {
 	comps.Escapes = c.escapes
 
 	comps.PREFIX = c.PREFIX
+	comps.NoFilter = c.noFilter
 	comps.SUFFIX = c.SUFFIX
 
 	return comps

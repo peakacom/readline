@@ -47,7 +47,9 @@ func (e *Engine) generate(completions Values) {
 	// Apply the prefix to the completions, and filter out any
 	// completions that don't match, optionally ignoring case.
 	matchCase := e.config.GetBool("completion-ignore-case")
-	completions.values = completions.values.FilterPrefix(e.prefix, !matchCase)
+	if !completions.NoFilter {
+		completions.values = completions.values.FilterPrefix(e.prefix, !matchCase)
+	}
 
 	// Classify, group together and initialize completions.
 	completions.values.EachTag(e.generateGroup(completions))

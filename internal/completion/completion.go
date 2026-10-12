@@ -25,6 +25,7 @@ type Values struct {
 	Usage    string
 	ListLong map[string]bool
 	NoSort   map[string]bool
+	NoFilter bool
 	ListSep  map[string]string
 	Pad      map[string]bool
 	Escapes  map[string]bool
